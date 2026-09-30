@@ -4,3 +4,7 @@ samples/
 src/generated/
 THIRD-PARTY-LICENSES.txt
 *.tgz
+# mcp-publisher (MCP Registry): the binary, and the tokens its login leaves in the working folder
+mcp-publisher.exe
+mcp-publisher
+.mcpregistry_*
