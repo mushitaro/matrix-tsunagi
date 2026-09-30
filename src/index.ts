@@ -5,7 +5,8 @@
  *     const ve = mapping.proposeVe({ bin, csv });   // bin: Uint8Array, csv: string
  *     console.log(ve.summary);
  *
- * Categories follow the apps' marks. MAPPING is the first; the others arrive as their tools do.
+ * Categories follow the apps' marks. MAPPING holds TUNER (mapping.readBin, readLog, proposeVe,
+ * proposeRfKorr) and SMG2 (mapping.smg2Image, smg2Read, smg2Compare).
  */
 import * as mapping from './mapping';
 

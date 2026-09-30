@@ -17,6 +17,18 @@ and what rests on it; the parts that reach this package are:
 - **[karter16](https://nam3forum.com/forums/member/9797-karter16)**, whose TunerPro definition `CSL_0401_Karter16_v3_6_publish.xdf` is where every calibration address and scaling in TUNER's `src/config/constants.ts` and `src/lib/ecu-items/` comes from.
   The XDF itself is not in this package, and neither is any third-party XDF.
 
+## 1b. E46M3SMG2 /// MAPPING
+
+SMG2's reading of an SMG II 510 image is its own code, bundled from the public repository
+[mushitaro/e46m3smg2-mapping](https://github.com/mushitaro/e46m3smg2-mapping) (MIT, TSUNAGI) at the commit `vendor/smg2` is pinned to.
+That code is the XDF engine, SMG2's catalog of corrections to the definition, the checksum and the ZB anchor.
+Its `packages/ds2-core` is a copy of the same package in [E46M3-Monitoring](https://github.com/mushitaro/E46M3-Monitoring) (MIT, the same author).
+
+- **The MS4X Dev Team** wrote the TunerPro definitions `Siemens_SMG_II_510_24K.xdf` and `_512K.xdf`, which were supplied by Olza. **They are not in this package.**
+  The owner passes their own. SMG2's catalog corrects the definition by `uniqueId`, and each entry states the vendor's value it expects.
+  The corrections are SMG2's measurement; the definition they correct is MS4X's.
+- SMG2's **practice image** is built at run time by SMG2's own `buildPracticeImage()`. Its bytes are invented, and every result that uses it says PRACTICE.
+
 ## 2. The practice files (`samples/`)
 
 Both are already public in the TUNER repository. `npm run verify` checks that they match it byte for byte.
@@ -29,8 +41,8 @@ Both are already public in the TUNER repository. `npm run verify` checks that th
 
 ## 3. Not in this package
 
-BMW program images, bootloaders, full DME or EEPROM dumps, third-party XDFs, TUNER's decompiled calibration corpus,
-and any real vehicle's data.
+BMW program images, bootloaders, full DME or EEPROM dumps, BMW SP-DATEN, third-party XDFs (including the MS4X SMG II definitions),
+TUNER's decompiled calibration corpus, and any real vehicle's data.
 
 ## 4. Bundled npm packages
 

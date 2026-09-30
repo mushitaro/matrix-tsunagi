@@ -86,6 +86,22 @@ export const APPLY_TUNER_WORKS = (what: { en: string; ja: string }): Apply => ({
     },
 });
 
+/**
+ * SMG2 has no public build, and its WORKS build never writes to the gearbox ECU: it reads the
+ * calibration from the car, decodes it, and edits and exports the file. So this says reading and
+ * exporting, never writing. It also carries the MS4X definition behind the owner gate (SMG2's
+ * THIRD-PARTY-NOTICES §2.2), which is the one thing an owner without the XDF cannot get here.
+ */
+export const APPLY_SMG2: Apply = {
+    app: `${APPS.smg2.name} — WORKS`,
+    availability: 'works',
+    url: MESH_URL.en,
+    how: {
+        en: `Reading the calibration from your own car, and editing and exporting it, are done in the WORKS build of ${APPS.smg2.name}. It carries the MS4X definition, so no XDF of your own is needed there. The WORKS builds are for people who have bought MILE on MESH (one-time payment): ${MESH_URL.en}`,
+        ja: `ご自身の車からの較正の読み取り、編集、書き出しは、${APPS.smg2.name} のワークス版で行えます。ワークス版には MS4X の定義が入っているので、XDF をお持ちでなくても解読できます。ワークス版は MESH で MILE をご購入いただいた方がお使いいただけます（一回限りのお支払い）: ${MESH_URL.ja}`,
+    },
+};
+
 export const STAGE_NOTE = {
     experimental: {
         en: 'Experimental (EXP.) in the app: the calculation has not yet been proven on a car. Treat it as a reading of your log, not a table to trust blind.',

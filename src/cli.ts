@@ -7,7 +7,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { describe } from './describe';
 import { readBin, readLog, proposeVe, proposeRfKorr, InputError } from './mapping';
-import { APPLY_TUNER_WORKS } from './facts';
+import { smg2Image, smg2Read, smg2Compare, buildPracticeImage } from './mapping-smg2';
+import { APPLY_SMG2, APPLY_TUNER_WORKS } from './facts';
 import { SAMPLE } from './samples';
 import { serveMapping } from './mcp';
 
@@ -107,8 +108,42 @@ async function main(argv: string[]) {
             print(proposeRfKorr({ bin: i.bin!, csv: i.csv!, fileName: i.fileName }));
             return;
         }
+        case 'smg2': {
+            const [, , sub, first, second] = pos;
+            const practice = flags.sample === true;
+            const image = () => {
+                if (practice) return buildPracticeImage();
+                const p = typeof flags.image === 'string' ? flags.image : first;
+                if (!p) throw new UsageError('Give the SMG II image: matrix-tsunagi mapping smg2 ' + (sub ?? 'image') + ' <image.bin>, or --sample for the practice image.');
+                return new Uint8Array(readFile(p, 'SMG II image'));
+            };
+            const xdf = () => {
+                if (typeof flags.xdf !== 'string') {
+                    throw new UsageError(`Decoding needs the MS4X definition: --xdf Siemens_SMG_II_510_24K.xdf (a 24 KiB window) or _512K.xdf (a full read). It is MS4X's and not shipped here. ${APPLY_SMG2.how.en}`);
+                }
+                return readFile(flags.xdf, 'XDF').toString('utf8');
+            };
+            switch (sub) {
+                case 'image':
+                    only(flags, ['image', 'sample'], 'mapping smg2 image');
+                    print(smg2Image({ image: image(), practice }));
+                    return;
+                case 'read':
+                    only(flags, ['image', 'sample', 'xdf', 'item'], 'mapping smg2 read');
+                    print(smg2Read({ image: image(), xdf: xdf(), item: typeof flags.item === 'string' ? flags.item : undefined, practice }));
+                    return;
+                case 'compare': {
+                    only(flags, ['xdf'], 'mapping smg2 compare');
+                    if (!first || !second) throw new UsageError('Give two images: matrix-tsunagi mapping smg2 compare <a.bin> <b.bin> --xdf <definition.xdf>');
+                    print(smg2Compare({ image: new Uint8Array(readFile(first, 'SMG II image')), other: new Uint8Array(readFile(second, 'SMG II image')), xdf: xdf() }));
+                    return;
+                }
+                default:
+                    throw new UsageError(`Unknown SMG2 command "${sub ?? ''}". It has: image, read, compare. Run "matrix-tsunagi describe".`);
+            }
+        }
         default:
-            throw new UsageError(`Unknown MAPPING command "${command ?? ''}". It has: bin, log, ve, rfkorr. Run "matrix-tsunagi describe".`);
+            throw new UsageError(`Unknown MAPPING command "${command ?? ''}". It has: bin, log, ve, rfkorr (TUNER) and smg2 image, smg2 read, smg2 compare (SMG2). Run "matrix-tsunagi describe".`);
     }
 }
 

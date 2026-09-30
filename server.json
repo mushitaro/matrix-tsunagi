@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.mushitaro/matrix-tsunagi-mapping",
   "title": "TSUNAGI///Matrix — MAPPING",
-  "description": "BMW E46 M3 MSS54HP DME: read bins and Testo logs, get VE and rf_korr corrections, all locally.",
-  "version": "0.1.0",
+  "description": "BMW E46 M3 DME and SMG II: VE and rf_korr from Testo logs, decode SMG calibrations. Local.",
+  "version": "0.2.0",
   "websiteUrl": "https://m3.tsunagi.app",
   "repository": {
     "url": "https://github.com/mushitaro/matrix-tsunagi",
@@ -14,14 +14,20 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "matrix-tsunagi",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"
       },
       "packageArguments": [
-        { "type": "positional", "value": "mcp" },
-        { "type": "positional", "value": "mapping" }
+        {
+          "type": "positional",
+          "value": "mcp"
+        },
+        {
+          "type": "positional",
+          "value": "mapping"
+        }
       ]
     }
   ]

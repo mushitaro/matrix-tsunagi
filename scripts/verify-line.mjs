@@ -50,10 +50,15 @@ for (const [name, env] of [['ve', ve], ['rfkorr', rf]]) {
 }
 
 console.log('\n[words an assistant repeats]');
+const smg2 = mapping.smg2Image({ image: new Uint8Array(0x80000) });
 const said = [
     ...ABOUT.en, ...ABOUT.ja,
-    ve.apply.how.en, ve.apply.how.ja, rf.apply.how.en, rf.apply.how.ja,
+    ve.apply.how.en, ve.apply.how.ja, rf.apply.how.en, rf.apply.how.ja, smg2.apply.how.en, smg2.apply.how.ja,
 ].join('\n');
+// SMG2's WORKS build never writes to the gearbox ECU (its README, "書き込みが無い理由"), so what it is
+// said to do must not include writing to the car.
+check('SMG2 is never said to write to the car', !/write|writing|written/i.test(smg2.apply.how.en) && !/書き込/.test(smg2.apply.how.ja), smg2.apply.how.en);
+check('SMG2 results point at its WORKS build', smg2.apply.availability === 'works' && /E46M3SMG2/.test(smg2.apply.app));
 check('MILE is described as one-time, in both languages', /one-time payment/.test(ABOUT.en.join(' ')) && /一回限り/.test(ABOUT.ja.join(' ')));
 check('the MILESTONE sentence says it is not a promise, in both languages',
     /not a promise of any release or date/.test(ABOUT.en.join(' ')) && /約束するものではありません/.test(ABOUT.ja.join(' ')));

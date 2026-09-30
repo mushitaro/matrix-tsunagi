@@ -15,6 +15,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { describe } from './describe';
 import { readBin, readLog, proposeVe, proposeRfKorr, InputError } from './mapping';
+import { smg2Image, smg2Read, smg2Compare, buildPracticeImage } from './mapping-smg2';
 import { ABOUT } from './facts';
 import { SAMPLE } from './samples';
 
@@ -113,6 +114,48 @@ export function mappingServer(): McpServer {
         const i = load(a, { bin: true, log: true });
         return proposeRfKorr({ bin: i.bin!, csv: i.csv!, fileName: i.fileName });
     }));
+
+    const imageArg = z.string().optional().describe('Path to an SMG II 510 image on this machine: the 24 KiB calibration window (24,576 bytes) or the full 512 KiB flash (524,288 bytes).');
+    const xdfArg = z.string().describe('Path to the MS4X definition on this machine: Siemens_SMG_II_510_24K.xdf for a 24 KiB window, Siemens_SMG_II_510_512K.xdf for a full read. It is MS4X\'s and not shipped with this package.');
+    const readImage = (p: string | undefined, sample: boolean | undefined) => {
+        if (sample) return buildPracticeImage();
+        if (!p) throw new InputError('Pass image_path (the SMG II image), or use_sample: true for the practice image.');
+        try { return new Uint8Array(fs.readFileSync(p)); } catch { throw new InputError(`Cannot read the SMG II image at ${p}.`); }
+    };
+    const readXdf = (p: string) => {
+        try { return fs.readFileSync(p, 'utf8'); } catch { throw new InputError(`Cannot read the XDF at ${p}.`); }
+    };
+
+    server.registerTool('smg2_image', {
+        title: 'Identify an SMG II image',
+        description: 'BMW E46 M3 SMG II (Siemens SMG2 510, the sequential gearbox ECU): say what an image is — the 24 KiB calibration window or the full 512 KiB flash — its ZB number, and whether its CRC checksums hold. Needs no definition.',
+        inputSchema: { image_path: imageArg, use_sample: z.boolean().optional().describe('Use the app\'s practice image (invented bytes) instead of a file.') },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    }, guard((a: { image_path?: string; use_sample?: boolean }) => smg2Image({ image: readImage(a.image_path, a.use_sample), practice: !!a.use_sample })));
+
+    server.registerTool('smg2_read', {
+        title: 'Decode an SMG II calibration',
+        description: 'BMW E46 M3 SMG II (Siemens SMG2 510): decode the calibration — shift speed thresholds per gear and program (AUTO, SPORT/RACE, Drivelogic), gear ratios, clutch and launch settings — through the MS4X definition with E46M3SMG2 /// MAPPING\'s corrections. Pass item for one item\'s full table and axes.',
+        inputSchema: {
+            image_path: imageArg,
+            xdf_path: xdfArg,
+            item: z.string().optional().describe('A uniqueId (e.g. 0x7695) or words of a title (e.g. "A1 Speed"); matching items come back with every cell and axis.'),
+        },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    }, guard((a: { image_path?: string; xdf_path: string; item?: string }) =>
+        smg2Read({ image: readImage(a.image_path, false), xdf: readXdf(a.xdf_path), item: a.item })));
+
+    server.registerTool('smg2_compare', {
+        title: 'Compare two SMG II calibrations',
+        description: 'BMW E46 M3 SMG II (Siemens SMG2 510): which calibration items differ between two images of the same scope, how many cells, and the largest difference in physical units.',
+        inputSchema: {
+            image_path: z.string().describe('Path to the first SMG II image.'),
+            other_path: z.string().describe('Path to the second SMG II image, the same length as the first.'),
+            xdf_path: xdfArg,
+        },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    }, guard((a: { image_path: string; other_path: string; xdf_path: string }) =>
+        smg2Compare({ image: readImage(a.image_path, false), other: readImage(a.other_path, false), xdf: readXdf(a.xdf_path) })));
 
     return server;
 }

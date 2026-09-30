@@ -30,12 +30,15 @@ check('its instructions carry the facts an assistant relays (one-time, not a pro
 
 const { tools } = await client.listTools();
 const names = tools.map(t => t.name).sort();
-check('five tools', JSON.stringify(names) === JSON.stringify(['about_matrix', 'propose_rfkorr', 'propose_ve', 'read_bin', 'read_log']), names.join(', '));
+check("eight tools: TUNER's four, SMG2's three, and about_matrix", JSON.stringify(names) === JSON.stringify(['about_matrix', 'propose_rfkorr', 'propose_ve', 'read_bin', 'read_log', 'smg2_compare', 'smg2_image', 'smg2_read']), names.join(', '));
 const props = (n) => Object.keys(tools.find(t => t.name === n)?.inputSchema?.properties ?? {});
 check('propose_ve can be asked for a file (out_path)', props('propose_ve').includes('out_path'));
 check('propose_rfkorr cannot be asked for one', !props('propose_rfkorr').some(p => /out|path_out|save|file/.test(p) && p !== 'log_path' && p !== 'bin_path'), props('propose_rfkorr').join(', '));
+for (const n of ['smg2_image', 'smg2_read', 'smg2_compare']) {
+    check(`${n} cannot be asked for a file`, !props(n).some(p => /^out|save/.test(p)), props(n).join(', '));
+}
 check('every tool description names the car, so a request can be matched to it',
-    tools.filter(t => t.name !== 'about_matrix').every(t => /E46 M3/.test(t.description) && /MSS54HP/.test(t.description)));
+    tools.filter(t => t.name !== 'about_matrix').every(t => /E46 M3/.test(t.description) && (/MSS54HP/.test(t.description) || /SMG II/.test(t.description))));
 
 console.log('\n[calls]');
 const out = path.join(os.tmpdir(), `matrix-tsunagi-mcp-${process.pid}.bin`);
@@ -50,6 +53,11 @@ check('propose_rfkorr: experimental, and points at the WORKS build via MESH', rf
 
 const about = parse(await client.callTool({ name: 'about_matrix', arguments: {} }));
 check('about_matrix: the Japanese facts are there too', Array.isArray(about.about?.ja) && about.about.ja.some(s => s.includes('一回限り')));
+
+const sm = parse(await client.callTool({ name: 'smg2_image', arguments: { use_sample: true } }));
+check('smg2_image on the practice image: a full read, PRACTICE first, WORKS for the car', sm.result?.variant === 'full-512k' && sm.summary.startsWith('PRACTICE') && sm.apply?.availability === 'works');
+const noXdf = await client.callTool({ name: 'smg2_read', arguments: { image_path: path.join(root, 'samples', 'practice.bin'), xdf_path: path.join(os.tmpdir(), 'no-such.xdf') } });
+check('smg2_read with a missing XDF is a readable error', noXdf.isError === true);
 
 const bad = await client.callTool({ name: 'read_bin', arguments: { bin_path: path.join(os.tmpdir(), 'no-such-file.bin') } });
 check('a missing file is an error the assistant can read, not a crash', bad.isError === true && /Cannot read the BIN/.test(bad.content[0].text));

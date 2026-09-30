@@ -1,5 +1,6 @@
 /**
- * MAPPING — the Matrix category for tools that rewrite a map. Today: MSS54HP CSL CONVERT /// TUNER.
+ * MAPPING — the Matrix category for tools that rewrite a map: MSS54HP CSL CONVERT /// TUNER here,
+ * E46M3SMG2 /// MAPPING in mapping-smg2.ts.
  *
  * Each call returns an envelope an assistant can read top to bottom: a `summary` to say, the numbers
  * behind it, where the calculation came from, and — only when the result would have to be written
@@ -14,44 +15,25 @@ import {
     loadBase, loadLog, runVe, buildTuned, channelsIn, coverageRemedy, AXES, BIN_BYTES, InputError,
 } from './mapping/tuner';
 import type { Base } from './mapping/tuner';
-import { APPLY_TUNER_WORKS, APPLY_VE, APPS, MATRIX, STAGE_NOTE } from './facts';
+import { APPLY_TUNER_WORKS, APPLY_VE, APPS, STAGE_NOTE } from './facts';
+import { envelope as wrap, TOOL_BUILD } from './envelope';
+import type { Envelope, Source } from './envelope';
 import type { Apply } from './facts';
 import dropWhy from './generated/drop-why.json';
 
 export { InputError, BIN_BYTES };
-
-declare const __TUNER_VERSION__: string;
-declare const __TUNER_COMMIT__: string;
-
-export interface Source {
-    tool: string;
-    version: string;
-    commit: string;
-    stage: 'stable' | 'experimental';
-    note?: { en: string; ja: string };
-}
-
-export interface Envelope<T> {
-    matrix: typeof MATRIX;
-    category: 'MAPPING';
-    command: string;
-    summary: string;
-    source: Source;
-    result: T;
-    apply?: Apply;
-}
+export type { Envelope, Source };
+export { smg2Image, smg2Read, smg2Compare } from './mapping-smg2';
 
 const source = (stage: Source['stage']): Source => ({
     tool: APPS.tuner.name,
-    version: __TUNER_VERSION__,
-    commit: __TUNER_COMMIT__,
+    ...TOOL_BUILD.tuner(),
     stage,
     ...(stage === 'experimental' ? { note: STAGE_NOTE.experimental } : {}),
 });
 
-const envelope = <T>(command: string, summary: string, stage: Source['stage'], result: T, apply?: Apply): Envelope<T> => ({
-    matrix: MATRIX, category: 'MAPPING', command, summary, source: source(stage), result, ...(apply ? { apply } : {}),
-});
+const envelope = <T>(command: string, summary: string, stage: Source['stage'], result: T, apply?: Apply): Envelope<T> =>
+    wrap(command, summary, source(stage), result, apply);
 
 const r3 = (v: number) => Math.round(v * 1000) / 1000;
 const pct = (after: number, before: number) => before === 0 ? 0 : Math.round((after / before - 1) * 1000) / 10;

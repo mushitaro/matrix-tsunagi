@@ -1,3 +1,6 @@
 [submodule "vendor/tuner"]
 	path = vendor/tuner
 	url = https://github.com/mushitaro/mss54hp-csl-convert-tuner.git
+[submodule "vendor/smg2"]
+	path = vendor/smg2
+	url = https://github.com/mushitaro/e46m3smg2-mapping.git

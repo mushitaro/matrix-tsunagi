@@ -1,7 +1,8 @@
 {
-  // `@/` is TUNER's own alias, pointed at the pinned submodule so src/ imports the app's code by
-  // the same paths the app uses. Files inside vendor/tuner resolve through that repository's own
-  // tsconfig, which says the same thing.
+  // `@/` is each tool's own alias. esbuild resolves it per repository, through each submodule's
+  // own tsconfig; tsc reads only this file, so `@/` tries TUNER first and SMG2 second — the one
+  // SMG2 path reached from here (`@/lib/factory/reference`, a type) exists only in SMG2.
+  // `@smg2/*` is how src/ names SMG2's app code, and `@tsunagi/*` are SMG2's workspace packages.
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022", "DOM"],
@@ -15,7 +16,12 @@
     "isolatedModules": true,
     "types": ["node"],
     "paths": {
-      "@/*": ["./vendor/tuner/src/*"]
+      "@/*": ["./vendor/tuner/src/*", "./vendor/smg2/src/*"],
+      "@smg2/*": ["./vendor/smg2/src/*"],
+      "@tsunagi/xdf-engine": ["./vendor/smg2/packages/xdf-engine/src/index.ts"],
+      "@tsunagi/ds2-smg2": ["./vendor/smg2/packages/ds2-smg2/src/index.ts"],
+      "@tsunagi/ds2-core": ["./vendor/smg2/packages/ds2-core/src/index.ts"],
+      "@tsunagi/ds2-core/*": ["./vendor/smg2/packages/ds2-core/src/*"]
     }
   },
   "include": ["src/**/*.ts"]
