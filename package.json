@@ -1,0 +1,66 @@
+{
+  "name": "matrix-tsunagi",
+  "version": "0.1.0",
+  "description": "TSUNAGI///Matrix — the BMW E46 M3 tools' calculations as a library, a CLI and MCP servers. Read MSS54HP DME logs (Testo CSV) and bins, and get VE and rf_korr corrections, with no car and no cable.",
+  "keywords": [
+    "bmw",
+    "e46",
+    "m3",
+    "csl",
+    "mss54hp",
+    "s54",
+    "dme",
+    "ecu",
+    "tuning",
+    "ve-table",
+    "testo",
+    "mcp",
+    "tsunagi-matrix"
+  ],
+  "homepage": "https://github.com/mushitaro/matrix-tsunagi#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mushitaro/matrix-tsunagi.git"
+  },
+  "bugs": "https://github.com/mushitaro/matrix-tsunagi/issues",
+  "license": "MIT",
+  "author": "TSUNAGI (https://m3.tsunagi.app)",
+  "mcpName": "io.github.mushitaro/matrix-tsunagi-mapping",
+  "type": "module",
+  "bin": {
+    "matrix-tsunagi": "dist/cli.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./mapping": "./dist/mapping.js"
+  },
+  "files": [
+    "dist",
+    "samples",
+    "README.md",
+    "LICENSE",
+    "THIRD-PARTY-NOTICES.md",
+    "THIRD-PARTY-LICENSES.txt"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "verify:golden": "node scripts/verify-golden.mjs",
+    "verify:line": "node scripts/verify-line.mjs",
+    "verify:mcp": "node scripts/verify-mcp.mjs",
+    "verify": "npm run build && npm run typecheck && npm run verify:golden && npm run verify:line && npm run verify:mcp",
+    "prepublishOnly": "npm run verify"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.31.0",
+    "@types/node": "^22.20.4",
+    "@types/papaparse": "5.5.2",
+    "esbuild": "^0.28.2",
+    "papaparse": "5.5.3",
+    "typescript": "^5.9.3",
+    "zod": "^3.25.76"
+  }
+}

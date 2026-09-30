@@ -1,0 +1,22 @@
+{
+  // `@/` is TUNER's own alias, pointed at the pinned submodule so src/ imports the app's code by
+  // the same paths the app uses. Files inside vendor/tuner resolve through that repository's own
+  // tsconfig, which says the same thing.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./vendor/tuner/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

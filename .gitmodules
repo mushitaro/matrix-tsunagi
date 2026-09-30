@@ -1,0 +1,3 @@
+[submodule "vendor/tuner"]
+	path = vendor/tuner
+	url = https://github.com/mushitaro/mss54hp-csl-convert-tuner.git
