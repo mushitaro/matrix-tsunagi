@@ -16,7 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as esbuild from 'esbuild';
 import ts from 'typescript';
 
@@ -29,6 +29,14 @@ if (!fs.existsSync(path.join(tuner, 'src'))) {
     process.exit(1);
 }
 const smg2 = path.join(root, 'vendor', 'smg2');
+const boot = path.join(root, 'vendor', 'boot');
+const m35080 = path.join(root, 'vendor', 'm35080');
+for (const [name, dir] of [['vendor/boot', boot], ['vendor/m35080', m35080]]) {
+    if (!fs.existsSync(path.join(dir, 'README.md'))) {
+        console.error(name + ' is empty — run: git submodule update --init');
+        process.exit(1);
+    }
+}
 if (!fs.existsSync(path.join(smg2, 'src'))) {
     console.error('vendor/smg2 is empty — run: git submodule update --init');
     process.exit(1);
@@ -38,7 +46,11 @@ const smg2Pkg = JSON.parse(fs.readFileSync(path.join(smg2, 'package.json'), 'utf
 const commitOf = (dir) => execFileSync('git', ['-C', dir, 'rev-parse', '--short=7', 'HEAD'], { encoding: 'utf8' }).trim();
 const tunerCommit = commitOf(tuner);
 const smg2Commit = commitOf(smg2);
-for (const [name, dir] of [['vendor/tuner', tuner], ['vendor/smg2', smg2]]) {
+const bootPkg = JSON.parse(fs.readFileSync(path.join(boot, 'package.json'), 'utf8'));
+const m35080Pkg = JSON.parse(fs.readFileSync(path.join(m35080, 'web', 'package.json'), 'utf8'));
+const bootCommit = commitOf(boot);
+const m35080Commit = commitOf(m35080);
+for (const [name, dir] of [['vendor/tuner', tuner], ['vendor/smg2', smg2], ['vendor/boot', boot], ['vendor/m35080', m35080]]) {
     const dirty = execFileSync('git', ['-C', dir, 'status', '--porcelain'], { encoding: 'utf8' }).trim();
     if (dirty) {
         // A bundle has to name a commit anyone can check out. Local edits in a submodule would ship
@@ -77,6 +89,20 @@ fs.mkdirSync(path.join(root, 'samples'), { recursive: true });
 fs.copyFileSync(path.join(tuner, 'public', 'mock', 'csl-0401-community-patch-v1.partial.bin'), path.join(root, 'samples', 'practice.bin'));
 fs.copyFileSync(path.join(tuner, 'scripts', 'fixtures', 'practice-drive.testo.csv'), path.join(root, 'samples', 'practice-drive.testo.csv'));
 
+// M35080's practice EEPROM: its own test fixture (web/test/support/lateImage.ts, made-up mileage
+// and VIN), run HERE and written to a file. The fixture builds the image with the app's encoders
+// (encodeOdometer, encodeVin), and running it at build time is what keeps those encoders out of
+// the published bundle — verify:migration checks that they are not in it.
+{
+    const entry = path.join(root, 'samples', '.m35080-entry.ts');
+    const out = path.join(root, 'samples', '.m35080-entry.mjs');
+    fs.writeFileSync(entry, `export { lateImage } from ${JSON.stringify(path.join(m35080, 'web', 'test', 'support', 'lateImage.ts'))};`);
+    await esbuild.build({ entryPoints: [entry], outfile: out, bundle: true, platform: 'node', format: 'esm', absWorkingDir: m35080 + '/web', logLevel: 'error' });
+    const { lateImage } = await import(pathToFileURL(out).href);
+    fs.writeFileSync(path.join(root, 'samples', 'practice-m35080.bin'), lateImage());
+    fs.rmSync(entry); fs.rmSync(out);
+}
+
 // --- bundle --------------------------------------------------------------------------------------
 fs.rmSync(path.join(root, 'dist'), { recursive: true, force: true });
 const common = {
@@ -92,6 +118,10 @@ const common = {
         __TUNER_COMMIT__: JSON.stringify(tunerCommit),
         __SMG2_VERSION__: JSON.stringify(smg2Pkg.version),
         __SMG2_COMMIT__: JSON.stringify(smg2Commit),
+        __BOOT_VERSION__: JSON.stringify(bootPkg.version),
+        __BOOT_COMMIT__: JSON.stringify(bootCommit),
+        __M35080_VERSION__: JSON.stringify(m35080Pkg.version),
+        __M35080_COMMIT__: JSON.stringify(m35080Commit),
     },
     // Some bundled CommonJS (papaparse and the MCP SDK's dependencies) calls require(); an ESM
     // bundle has none of its own.
@@ -101,7 +131,7 @@ const common = {
     metafile: true,
     logLevel: 'warning',
 };
-const libBuild = await esbuild.build({ ...common, entryPoints: { index: 'src/index.ts', mapping: 'src/mapping.ts' }, outdir: 'dist', splitting: true, chunkNames: 'chunks/[name]-[hash]' });
+const libBuild = await esbuild.build({ ...common, entryPoints: { index: 'src/index.ts', mapping: 'src/mapping.ts', migration: 'src/migration.ts', mcp: 'src/mcp.ts' }, outdir: 'dist', splitting: true, chunkNames: 'chunks/[name]-[hash]' });
 const cliBuild = await esbuild.build({ ...common, entryPoints: { cli: 'src/cli.ts' }, outdir: 'dist', banner: { js: '#!/usr/bin/env node\n' + common.banner.js } });
 
 // --- the licence of every package that ended up inside a bundle, in full --------------------------
@@ -120,6 +150,8 @@ const licences = [...bundled.entries()].sort(([a], [b]) => a.localeCompare(b)).m
 });
 const tunerLicence = fs.readFileSync(path.join(tuner, 'LICENSE'), 'utf8').trim();
 const smg2Licence = fs.readFileSync(path.join(smg2, 'LICENSE'), 'utf8').trim();
+const bootLicence = fs.readFileSync(path.join(boot, 'LICENSE'), 'utf8').trim();
+const m35080Licence = fs.readFileSync(path.join(m35080, 'LICENSE'), 'utf8').trim();
 fs.writeFileSync(path.join(root, 'THIRD-PARTY-LICENSES.txt'),
     'Licences of the code bundled into dist/. Generated by scripts/build.mjs from what esbuild bundled.\n\n'
     + `${'='.repeat(100)}\nMSS54HP CSL CONVERT /// TUNER ${tunerPkg.version} (${tunerCommit}) — MIT\nhttps://github.com/mushitaro/mss54hp-csl-convert-tuner\n${'='.repeat(100)}\n\n${tunerLicence}\n\n`
@@ -130,5 +162,7 @@ fs.writeFileSync(path.join(root, 'dist', 'provenance.json'), JSON.stringify({
     package: pkg.version,
     tuner: { repository: 'https://github.com/mushitaro/mss54hp-csl-convert-tuner', version: tunerPkg.version, commit: tunerCommit },
     smg2: { repository: 'https://github.com/mushitaro/e46m3smg2-mapping', version: smg2Pkg.version, commit: smg2Commit },
+    boot: { repository: 'https://github.com/mushitaro/mss54hp-csl-convert-boot', version: bootPkg.version, commit: bootCommit },
+    m35080: { repository: 'https://github.com/mushitaro/e46-m35080-migration', version: m35080Pkg.version, commit: m35080Commit },
 }, null, 2) + '\n');
-console.log(`built matrix-tsunagi ${pkg.version} from TUNER ${tunerPkg.version} (${tunerCommit}) and SMG2 ${smg2Pkg.version} (${smg2Commit})`);
+console.log(`built matrix-tsunagi ${pkg.version} from TUNER ${tunerPkg.version} (${tunerCommit}), SMG2 ${smg2Pkg.version} (${smg2Commit}), BOOT ${bootPkg.version} (${bootCommit}) and M35080 ${m35080Pkg.version} (${m35080Commit})`);

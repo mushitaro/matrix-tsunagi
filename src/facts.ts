@@ -102,6 +102,36 @@ export const APPLY_SMG2: Apply = {
     },
 };
 
+/**
+ * BOOT's WORKS build backs a DME up over OBD and plans its CSL conversion. Its hardware write lock
+ * is off (writeLock.ts, HARDWARE_WRITE_ENABLED = false), so it is never said to write.
+ */
+export const APPLY_BOOT: Apply = {
+    app: `${APPS.boot.name} — WORKS`,
+    availability: 'works',
+    url: MESH_URL.en,
+    how: {
+        en: `Backing a DME up over OBD, verifying the backup, and planning its CSL conversion are done in the WORKS build of ${APPS.boot.name}. The WORKS builds are for people who have bought MILE on MESH (one-time payment): ${MESH_URL.en}`,
+        ja: `OBD からの DME のバックアップ、その検証、CSL 化の計画は、${APPS.boot.name} のワークス版で行えます。ワークス版は MESH で MILE をご購入いただいた方がお使いいただけます（一回限りのお支払い）: ${MESH_URL.ja}`,
+    },
+};
+
+/**
+ * M35080's WORKS build does write the cluster EEPROM, and what it is for is carrying a car's TRUE
+ * mileage and coding to a replacement cluster (its README, "The constraint that shapes
+ * everything"). The secure counter can only be raised, and the sentence says so, so nobody reads
+ * this as a way to lower a reading.
+ */
+export const APPLY_M35080: Apply = {
+    app: `${APPS.m35080.name} — WORKS`,
+    availability: 'works',
+    url: MESH_URL.en,
+    how: {
+        en: `Reading the M35080 EEPROM from the cluster, backing it up and repairing it, and carrying the car's true mileage and coding over to a replacement cluster, are done in the WORKS build of ${APPS.m35080.name}. The mileage counter can only be raised, and the tool exists to carry the true reading, never to lower one. The WORKS builds are for people who have bought MILE on MESH (one-time payment): ${MESH_URL.en}`,
+        ja: `メーターからの M35080 EEPROM の読み取り、バックアップと修復、交換するメーターへの本来の走行距離とコーディングの引き継ぎは、${APPS.m35080.name} のワークス版で行えます。走行距離のカウンタは増やす方向にしか書けず、本来の値を引き継ぐためのもので、減らすためのものではありません。ワークス版は MESH で MILE をご購入いただいた方がお使いいただけます（一回限りのお支払い）: ${MESH_URL.ja}`,
+    },
+};
+
 export const STAGE_NOTE = {
     experimental: {
         en: 'Experimental (EXP.) in the app: the calculation has not yet been proven on a car. Treat it as a reading of your log, not a table to trust blind.',

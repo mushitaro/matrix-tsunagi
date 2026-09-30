@@ -10,7 +10,9 @@ import { readBin, readLog, proposeVe, proposeRfKorr, InputError } from './mappin
 import { smg2Image, smg2Read, smg2Compare, buildPracticeImage } from './mapping-smg2';
 import { APPLY_SMG2, APPLY_TUNER_WORKS } from './facts';
 import { SAMPLE } from './samples';
-import { serveMapping } from './mcp';
+import { serveMapping, serveMigration } from './mcp';
+import { bootBackup, bootCompare, m35080Read, m35080Compare, practiceEcuImage } from './migration';
+import { APPLY_BOOT, APPLY_M35080 } from './facts';
 
 class UsageError extends Error {}
 
@@ -66,11 +68,46 @@ async function main(argv: string[]) {
         return;
     }
     if (group === 'mcp') {
-        if (command !== 'mapping') throw new UsageError('Only the MAPPING MCP server exists so far: matrix-tsunagi mcp mapping');
-        await serveMapping();
-        return;
+        if (command === 'mapping') { await serveMapping(); return; }
+        if (command === 'migration') { await serveMigration(); return; }
+        throw new UsageError('The MCP servers are: matrix-tsunagi mcp mapping, matrix-tsunagi mcp migration');
     }
-    if (group !== 'mapping') throw new UsageError(`Unknown category "${group}". Run "matrix-tsunagi describe" for what exists.`);
+    if (group === 'migration') {
+        const [, , sub, first, second] = pos;
+        const practice = flags.sample === true;
+        const file = (p: string | undefined, what: string) => {
+            if (!p) throw new UsageError(`Give the ${what}.`);
+            return new Uint8Array(readFile(p, what));
+        };
+        if (command === 'boot') {
+            if (sub === 'backup') {
+                only(flags, ['sample'], 'migration boot backup');
+                print(bootBackup({ image: practice ? practiceEcuImage() : file(first, 'full DME image (1 MiB)'), practice }));
+                return;
+            }
+            if (sub === 'compare') {
+                only(flags, [], 'migration boot compare');
+                print(bootCompare({ image: file(first, 'first full DME image'), other: file(second, 'second full DME image') }));
+                return;
+            }
+            throw new UsageError(`Unknown BOOT command "${sub ?? ''}". It has: backup, compare. ${APPLY_BOOT.how.en}`);
+        }
+        if (command === 'm35080') {
+            if (sub === 'read') {
+                only(flags, ['sample'], 'migration m35080 read');
+                print(m35080Read({ image: practice ? new Uint8Array(readFile(SAMPLE.m35080, 'practice EEPROM')) : file(first, 'M35080 image (1 KB)'), practice }));
+                return;
+            }
+            if (sub === 'compare') {
+                only(flags, [], 'migration m35080 compare');
+                print(m35080Compare({ image: file(first, 'first M35080 image'), other: file(second, 'second M35080 image') }));
+                return;
+            }
+            throw new UsageError(`Unknown M35080 command "${sub ?? ''}". It has: read, compare — reading only. ${APPLY_M35080.how.en}`);
+        }
+        throw new UsageError('MIGRATION has: boot backup, boot compare, m35080 read, m35080 compare. Run "matrix-tsunagi describe".');
+    }
+    if (group !== 'mapping') throw new UsageError(`Unknown category "${group}". The categories so far are mapping and migration. Run "matrix-tsunagi describe".`);
 
     switch (command) {
         case 'bin': {

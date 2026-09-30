@@ -1,7 +1,7 @@
 {
   "name": "matrix-tsunagi",
-  "version": "0.2.0",
-  "description": "TSUNAGI///Matrix — the BMW E46 M3 tools' calculations as a library, a CLI and MCP servers. MSS54HP DME: VE and rf_korr corrections from Testo logs. SMG II: decode and compare the gearbox calibration. No car, no cable, nothing sent.",
+  "version": "0.3.0",
+  "description": "TSUNAGI///Matrix — the BMW E46 M3 tools' calculations as a library, a CLI and MCP servers. MSS54HP DME: VE and rf_korr corrections from Testo logs. SMG II: decode and compare the gearbox calibration. DME backups and cluster M35080 EEPROMs: read and verify. No car, no cable, nothing sent.",
   "keywords": [
     "bmw",
     "e46",
@@ -21,7 +21,12 @@
     "smg-ii",
     "tcu",
     "xdf",
-    "tunerpro"
+    "tunerpro",
+    "m35080",
+    "eeprom",
+    "odometer",
+    "bootloader",
+    "kombi"
   ],
   "homepage": "https://github.com/mushitaro/matrix-tsunagi#readme",
   "repository": {
@@ -38,7 +43,9 @@
   },
   "exports": {
     ".": "./dist/index.js",
-    "./mapping": "./dist/mapping.js"
+    "./mapping": "./dist/mapping.js",
+    "./migration": "./dist/migration.js",
+    "./mcp": "./dist/mcp.js"
   },
   "files": [
     "dist",
@@ -57,9 +64,10 @@
     "verify:golden": "node scripts/verify-golden.mjs",
     "verify:line": "node scripts/verify-line.mjs",
     "verify:mcp": "node scripts/verify-mcp.mjs",
-    "verify": "npm run build && npm run typecheck && npm run verify:golden && npm run verify:line && npm run verify:smg2 && npm run verify:mcp",
+    "verify": "npm run build && npm run typecheck && npm run verify:golden && npm run verify:line && npm run verify:smg2 && npm run verify:migration && npm run verify:mcp",
     "prepublishOnly": "npm run verify",
-    "verify:smg2": "node scripts/verify-smg2.mjs"
+    "verify:smg2": "node scripts/verify-smg2.mjs",
+    "verify:migration": "node scripts/verify-migration.mjs"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.31.0",

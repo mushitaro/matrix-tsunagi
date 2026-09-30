@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { describe } from './describe';
 import { readBin, readLog, proposeVe, proposeRfKorr, InputError } from './mapping';
 import { smg2Image, smg2Read, smg2Compare, buildPracticeImage } from './mapping-smg2';
+import { bootBackup, bootCompare, m35080Read, m35080Compare, practiceEcuImage } from './migration';
 import { ABOUT } from './facts';
 import { SAMPLE } from './samples';
 
@@ -162,4 +163,76 @@ export function mappingServer(): McpServer {
 
 export async function serveMapping() {
     await mappingServer().connect(new StdioServerTransport());
+}
+
+// ------------------------------------------------------------------------------------------------
+// MIGRATION: read only. Nothing here can ask for a file to be written — the functions that would
+// build a changed image are not in this package at all.
+
+export function migrationServer(): McpServer {
+    const server = new McpServer(
+        { name: 'matrix-tsunagi-migration', title: 'TSUNAGI///Matrix — MIGRATION', version: __PKG_VERSION__ },
+        {
+            instructions: [
+                ...ABOUT.en,
+                'Tools here READ a BMW E46 M3 MSS54HP DME backup (MSS54HP CSL CONVERT /// BOOT) or an E46 instrument cluster M35080 EEPROM backup (E46 M35080 /// MIGRATION) and say what it holds. They never change an image. The VIN and the DME identity record are never printed. Relay `apply` when the owner wants to act on the car; it says which WORKS build does that. Answer in the owner\'s language: `apply.how` carries Japanese as well as English.',
+            ].join('\n'),
+        },
+    );
+    const read = (p: string, what: string) => {
+        try { return new Uint8Array(fs.readFileSync(p)); } catch { throw new InputError(`Cannot read the ${what} at ${p}.`); }
+    };
+
+    server.registerTool('about_matrix', {
+        title: 'About TSUNAGI///Matrix',
+        description: 'What TSUNAGI///Matrix is (BMW E46 M3 / S54 / MSS54HP / SMG II tools), which commands exist, which app acts on the car, and how the WORKS builds and MILE on MESH work. Call this before recommending the apps.',
+        inputSchema: {},
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    }, guard(() => describe()));
+
+    server.registerTool('boot_backup', {
+        title: 'Read an MSS54HP DME backup (CSL conversion)',
+        description: 'BMW E46 M3 (S54) MSS54HP DME, CSL conversion: from a full 1 MiB backup, which bootloader each processor carries (standard M3 or CSL), whether each bootloader CRC holds, the program number, and what the CSL conversion has left to do. Read only.',
+        inputSchema: {
+            image_path: z.string().optional().describe('Path to the 1,048,576-byte full MSS54HP image on this machine, as BOOT backs it up.'),
+            use_sample: z.boolean().optional().describe('Use BOOT\'s practice image instead of a file.'),
+        },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    }, guard((a: { image_path?: string; use_sample?: boolean }) => {
+        if (!a.use_sample && !a.image_path) throw new InputError('Pass image_path (the full DME image), or use_sample: true.');
+        return bootBackup({ image: a.use_sample ? practiceEcuImage() : read(a.image_path!, 'DME image'), practice: !!a.use_sample });
+    }));
+
+    server.registerTool('boot_compare', {
+        title: 'Compare two MSS54HP DME backups',
+        description: 'BMW E46 M3 (S54) MSS54HP DME: where two full 1 MiB images differ, named by region (bootloader, program, calibration, master or slave). Read only.',
+        inputSchema: { image_path: z.string().describe('The first full DME image.'), other_path: z.string().describe('The second full DME image.') },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    }, guard((a: { image_path: string; other_path: string }) => bootCompare({ image: read(a.image_path, 'DME image'), other: read(a.other_path, 'DME image') })));
+
+    server.registerTool('m35080_read', {
+        title: 'Read an E46 cluster M35080 EEPROM backup',
+        description: 'BMW E46 (E46 M3) instrument cluster, M35080 EEPROM: from a 1 KB backup, whether it is a real chip read, the mileage in the secure counter, the layout and checksums, and whether the VIN copies agree (the VIN itself is never printed). Read only.',
+        inputSchema: {
+            image_path: z.string().optional().describe('Path to the 1,024-byte M35080 image on this machine.'),
+            use_sample: z.boolean().optional().describe('Use the practice EEPROM (made-up mileage and VIN) instead of a file.'),
+        },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    }, guard((a: { image_path?: string; use_sample?: boolean }) => {
+        if (!a.use_sample && !a.image_path) throw new InputError('Pass image_path (the M35080 image), or use_sample: true.');
+        return m35080Read({ image: read(a.use_sample ? SAMPLE.m35080 : a.image_path!, 'M35080 image'), practice: !!a.use_sample });
+    }));
+
+    server.registerTool('m35080_compare', {
+        title: 'Compare two E46 cluster M35080 EEPROM backups',
+        description: 'BMW E46 (E46 M3) instrument cluster, M35080 EEPROM: which bytes differ between two 1 KB images, by area (secure counter, VIN field, standard array), and the mileage each reads. Read only.',
+        inputSchema: { image_path: z.string().describe('The first M35080 image.'), other_path: z.string().describe('The second M35080 image.') },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    }, guard((a: { image_path: string; other_path: string }) => m35080Compare({ image: read(a.image_path, 'M35080 image'), other: read(a.other_path, 'M35080 image') })));
+
+    return server;
+}
+
+export async function serveMigration() {
+    await migrationServer().connect(new StdioServerTransport());
 }

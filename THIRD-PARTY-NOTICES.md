@@ -29,6 +29,16 @@ Its `packages/ds2-core` is a copy of the same package in [E46M3-Monitoring](http
   The corrections are SMG2's measurement; the definition they correct is MS4X's.
 - SMG2's **practice image** is built at run time by SMG2's own `buildPracticeImage()`. Its bytes are invented, and every result that uses it says PRACTICE.
 
+## 1c. MSS54HP CSL CONVERT /// BOOT and E46 M35080 /// MIGRATION (read only)
+
+Both are bundled from their public repositories (MIT, TSUNAGI) at the commits `vendor/boot` and `vendor/m35080` are pinned to:
+[mushitaro/mss54hp-csl-convert-boot](https://github.com/mushitaro/mss54hp-csl-convert-boot) and [mushitaro/e46-m35080-migration](https://github.com/mushitaro/e46-m35080-migration).
+Only their reading functions are bundled.
+
+- BOOT's offsets, CRCs and the byte values that tell one bootloader from another are facts about the DME and its firmware, as that repository's THIRD-PARTY-NOTICES §3 records. No BMW file is included.
+- M35080's odometer and VIN encoding derive from [gerchanovsky/m35080_odometer_fix](https://github.com/gerchanovsky/m35080_odometer_fix) (the Unlicense), forked from `kaeferfreund/m35080_Read_BitBang`. This package uses only the decoding side.
+- **`samples/practice-m35080.bin`** is written at build time by M35080's own test fixture (`web/test/support/lateImage.ts`). Its mileage and VIN are made up. BOOT's practice image is built at run time by BOOT's own `practiceEcuImage()`.
+
 ## 2. The practice files (`samples/`)
 
 Both are already public in the TUNER repository. `npm run verify` checks that they match it byte for byte.

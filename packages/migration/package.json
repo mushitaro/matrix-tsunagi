@@ -1,0 +1,16 @@
+{
+  "name": "matrix-tsunagi-migration",
+  "version": "0.3.0",
+  "description": "TSUNAGI///Matrix — MIGRATION MCP server: read BMW E46 M3 MSS54HP DME backups (CSL conversion bootloaders, CRCs) and E46 cluster M35080 EEPROM backups (mileage, checksums), locally and read-only. The server lives in matrix-tsunagi; this package is how the MCP Registry names it.",
+  "keywords": ["bmw", "e46", "m3", "mss54hp", "m35080", "eeprom", "bootloader", "mcp", "mcp-server", "tsunagi-matrix"],
+  "homepage": "https://github.com/mushitaro/matrix-tsunagi#mcp",
+  "repository": { "type": "git", "url": "git+https://github.com/mushitaro/matrix-tsunagi.git", "directory": "packages/migration" },
+  "license": "MIT",
+  "author": "TSUNAGI (https://m3.tsunagi.app)",
+  "mcpName": "io.github.mushitaro/matrix-tsunagi-migration",
+  "type": "module",
+  "bin": { "matrix-tsunagi-migration": "bin.js" },
+  "files": ["bin.js", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "dependencies": { "matrix-tsunagi": "0.3.0" }
+}

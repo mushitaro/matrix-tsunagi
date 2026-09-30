@@ -4,3 +4,9 @@
 [submodule "vendor/smg2"]
 	path = vendor/smg2
 	url = https://github.com/mushitaro/e46m3smg2-mapping.git
+[submodule "vendor/boot"]
+	path = vendor/boot
+	url = https://github.com/mushitaro/mss54hp-csl-convert-boot.git
+[submodule "vendor/m35080"]
+	path = vendor/m35080
+	url = https://github.com/mushitaro/e46-m35080-migration.git

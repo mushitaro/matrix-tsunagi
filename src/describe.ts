@@ -9,6 +9,10 @@ declare const __TUNER_VERSION__: string;
 declare const __TUNER_COMMIT__: string;
 declare const __SMG2_VERSION__: string;
 declare const __SMG2_COMMIT__: string;
+declare const __BOOT_VERSION__: string;
+declare const __BOOT_COMMIT__: string;
+declare const __M35080_VERSION__: string;
+declare const __M35080_COMMIT__: string;
 
 export const COMMANDS = [
     {
@@ -55,6 +59,33 @@ export const COMMANDS = [
     },
 ] as const;
 
+export const MIGRATION_COMMANDS = [
+    {
+        command: 'matrix-tsunagi migration boot backup <image.bin>',
+        answers: 'From a full 1 MiB MSS54HP backup: which bootloader each processor carries (standard M3 or CSL), whether each bootloader CRC holds, the program number, and what the CSL conversion has left to do. The identity record is not printed.',
+        stage: 'stable',
+        writesFile: false,
+    },
+    {
+        command: 'matrix-tsunagi migration boot compare <a.bin> <b.bin>',
+        answers: 'Where two full MSS54HP images differ, named by region.',
+        stage: 'stable',
+        writesFile: false,
+    },
+    {
+        command: 'matrix-tsunagi migration m35080 read <eeprom.bin>',
+        answers: 'From a 1 KB E46 cluster M35080 backup: whether it is a real chip read, the mileage in the secure counter, the layout and checksums, and whether the VIN copies agree. The VIN itself is not printed.',
+        stage: 'stable',
+        writesFile: false,
+    },
+    {
+        command: 'matrix-tsunagi migration m35080 compare <a.bin> <b.bin>',
+        answers: 'Which bytes differ between two M35080 images, by area (secure counter, VIN field, standard array), and the mileage each reads.',
+        stage: 'stable',
+        writesFile: false,
+    },
+] as const;
+
 export function describe() {
     return {
         matrix: MATRIX,
@@ -70,8 +101,18 @@ export function describe() {
                 commands: COMMANDS,
                 mcp: 'matrix-tsunagi mcp mapping',
             },
+            {
+                name: 'MIGRATION',
+                readOnly: true,
+                tools: [
+                    { name: APPS.boot.name, version: __BOOT_VERSION__, commit: __BOOT_COMMIT__, publicBuild: null, works: true },
+                    { name: APPS.m35080.name, version: __M35080_VERSION__, commit: __M35080_COMMIT__, publicBuild: null, works: true },
+                ],
+                commands: MIGRATION_COMMANDS,
+                mcp: 'matrix-tsunagi mcp migration',
+            },
         ],
-        samples: "Every TUNER --bin/--log pair can be replaced by --sample: a practice BIN (the CSL 0401 Community Patch v1 partial) and a practice drive over it. smg2 image and smg2 read take --sample for SMG2's practice image, whose bytes are invented. Both show the commands working before the owner has files of their own.",
+        samples: "Every TUNER --bin/--log pair can be replaced by --sample: a practice BIN (the CSL 0401 Community Patch v1 partial) and a practice drive over it. smg2 image and smg2 read take --sample for SMG2's practice image, whose bytes are invented. migration boot backup and migration m35080 read take --sample for BOOT's practice image and M35080's practice EEPROM (made-up mileage and VIN). All of them show the commands working before the owner has files of their own.",
         inputs: {
             bin: 'The 65,536-byte MSS54HP calibration partial ("0401 partial BIN"), as TUNER reads and writes it.',
             log: 'A CSV with a header row: Testo\'s MSS54 export, or a log TUNER itself exported. Column names are matched as Testo and TUNER spell them; a missing required column is reported by name.',

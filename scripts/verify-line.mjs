@@ -54,6 +54,10 @@ const smg2 = mapping.smg2Image({ image: new Uint8Array(0x80000) });
 const said = [
     ...ABOUT.en, ...ABOUT.ja,
     ve.apply.how.en, ve.apply.how.ja, rf.apply.how.en, rf.apply.how.ja, smg2.apply.how.en, smg2.apply.how.ja,
+    ...Object.values(await import(pathToFileURL(path.join(root, 'dist', 'migration.js')).href).then(m => ({
+        b: m.bootBackup({ image: m.practiceEcuImage() }).apply.how,
+        e: m.m35080Read({ image: new Uint8Array(fs.readFileSync(path.join(root, 'samples', 'practice-m35080.bin'))) }).apply.how,
+    }))).flatMap(h => [h.en, h.ja]),
 ].join('\n');
 // SMG2's WORKS build never writes to the gearbox ECU (its README, "書き込みが無い理由"), so what it is
 // said to do must not include writing to the car.
@@ -98,6 +102,13 @@ check('server.json, its npm package entry and package.json carry one version',
     server.version === pkg.version && server.packages?.[0]?.version === pkg.version && server.packages?.[0]?.identifier === pkg.name,
     `${server.version} / ${server.packages?.[0]?.version} / ${pkg.version}`);
 check('server.json description fits the registry (100 characters)', server.description.length <= 100, `${server.description.length}`);
+const wrap = JSON.parse(fs.readFileSync(path.join(root, 'packages', 'migration', 'package.json'), 'utf8'));
+const wrapServer = JSON.parse(fs.readFileSync(path.join(root, 'packages', 'migration', 'server.json'), 'utf8'));
+check('MIGRATION: the wrapper package, its registry entry and matrix-tsunagi carry one version, pinned exactly',
+    wrap.version === pkg.version && wrap.dependencies?.['matrix-tsunagi'] === pkg.version && wrapServer.version === pkg.version && wrapServer.packages?.[0]?.version === pkg.version,
+    `${wrap.version} / dep ${wrap.dependencies?.['matrix-tsunagi']} / ${wrapServer.version} / ${pkg.version}`);
+check('MIGRATION: the wrapper\'s mcpName is its registry entry\'s name', wrap.mcpName === wrapServer.name && wrapServer.packages?.[0]?.identifier === wrap.name);
+check('MIGRATION: the wrapper imports an export matrix-tsunagi actually has', !!pkg.exports?.['./mcp'] && /from 'matrix-tsunagi\/mcp'/.test(fs.readFileSync(path.join(root, 'packages', 'migration', 'bin.js'), 'utf8')));
 
 console.log(fails ? `\n${fails} FAIL` : '\nall PASS');
 process.exit(fails ? 1 : 0);

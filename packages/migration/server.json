@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mushitaro/matrix-tsunagi-migration",
+  "title": "TSUNAGI///Matrix — MIGRATION",
+  "description": "BMW E46 M3 DME backups and E46 cluster M35080 EEPROMs: read and verify, read-only, locally.",
+  "version": "0.3.0",
+  "websiteUrl": "https://m3.tsunagi.app",
+  "repository": {
+    "url": "https://github.com/mushitaro/matrix-tsunagi",
+    "source": "github",
+    "subfolder": "packages/migration"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "matrix-tsunagi-migration",
+      "version": "0.3.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" }
+    }
+  ]
+}

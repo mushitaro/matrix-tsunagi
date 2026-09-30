@@ -16,7 +16,9 @@
     "isolatedModules": true,
     "types": ["node"],
     "paths": {
-      "@/*": ["./vendor/tuner/src/*", "./vendor/smg2/src/*"],
+      "@/*": ["./vendor/tuner/src/*", "./vendor/smg2/src/*", "./vendor/m35080/web/*"],
+      "@boot/*": ["./vendor/boot/packages/dme-flash/src/*"],
+      "@m35080/*": ["./vendor/m35080/web/*"],
       "@smg2/*": ["./vendor/smg2/src/*"],
       "@tsunagi/xdf-engine": ["./vendor/smg2/packages/xdf-engine/src/index.ts"],
       "@tsunagi/ds2-smg2": ["./vendor/smg2/packages/ds2-smg2/src/index.ts"],

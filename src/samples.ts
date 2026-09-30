@@ -14,4 +14,6 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 export const SAMPLE = {
     bin: path.join(here, '..', 'samples', 'practice.bin'),
     log: path.join(here, '..', 'samples', 'practice-drive.testo.csv'),
+    /** M35080's test fixture (made-up mileage and VIN), written at build time. */
+    m35080: path.join(here, '..', 'samples', 'practice-m35080.bin'),
 };
