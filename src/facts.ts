@@ -71,8 +71,8 @@ export const APPLY_VE: Apply = {
     availability: 'free',
     url: APPS.tuner.url,
     how: {
-        en: `Write it to the car with ${APPS.tuner.name}, free, in the browser: ${APPS.tuner.url} — UPLOAD BIN and TESTO CSV with these same two files give this same table, and the app writes it over a K+DCAN cable. The tuned BIN this command can save is byte-for-byte the app's DOWNLOAD TUNED.`,
-        ja: `${APPS.tuner.name}（無料・ブラウザで動作）で車に書き込めます: ${APPS.tuner.url} — 同じ 2 つのファイルを UPLOAD BIN と TESTO CSV で読み込むと同じ表になり、K+DCAN ケーブルで書き込めます。このコマンドで保存できる調整済み BIN は、アプリの DOWNLOAD TUNED と 1 バイトも違いません。`,
+        en: `Write it to the car with ${APPS.tuner.name}, free, in the browser: ${APPS.tuner.url} — UPLOAD BIN and TESTO CSV with these same two files give this same table under the app's default settings, and the app writes it over a K+DCAN cable. The tuned BIN this command can save is byte-for-byte the app's DOWNLOAD TUNED.`,
+        ja: `${APPS.tuner.name}（無料・ブラウザで動作）で車に書き込めます: ${APPS.tuner.url} — 同じ 2 つのファイルを UPLOAD BIN と TESTO CSV で読み込むと、アプリの初期設定のままなら同じ表になり、K+DCAN ケーブルで書き込めます。このコマンドで保存できる調整済み BIN は、アプリの DOWNLOAD TUNED と 1 バイトも違いません。`,
     },
 };
 
