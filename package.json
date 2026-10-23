@@ -1,6 +1,6 @@
 {
   "name": "matrix-tsunagi",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "TSUNAGI///Matrix — the BMW E46 M3 tools' calculations as a library, a CLI and MCP servers. MSS54HP DME: VE and rf_korr corrections from Testo logs. SMG II: decode and compare the gearbox calibration. DME backups and cluster M35080 EEPROMs: read and verify. No car, no cable, nothing sent.",
   "keywords": [
     "bmw",
@@ -67,7 +67,8 @@
     "verify": "npm run build && npm run typecheck && npm run verify:golden && npm run verify:line && npm run verify:smg2 && npm run verify:migration && npm run verify:mcp",
     "prepublishOnly": "npm run verify",
     "verify:smg2": "node scripts/verify-smg2.mjs",
-    "verify:migration": "node scripts/verify-migration.mjs"
+    "verify:migration": "node scripts/verify-migration.mjs",
+    "plugin:pack": "node scripts/pack-plugin.mjs"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.31.0",

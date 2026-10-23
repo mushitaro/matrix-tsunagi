@@ -1,0 +1,18 @@
+{
+    "mcpServers": {
+        "matrix-mapping": {
+            "type": "stdio",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/bin/matrix-mcp.mjs", "mapping"]
+        },
+        "matrix-migration": {
+            "type": "stdio",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/bin/matrix-mcp.mjs", "migration"]
+        },
+        "tuner-works": {
+            "type": "http",
+            "url": "https://matrix-mcp.tsunagi.app/mcp/mapping/works"
+        }
+    }
+}

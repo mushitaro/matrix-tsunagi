@@ -8,3 +8,8 @@ THIRD-PARTY-LICENSES.txt
 mcp-publisher.exe
 mcp-publisher
 .mcpregistry_*
+remote/dist/
+remote/.wrangler/
+.wrangler/
+remote/pages/
+plugin-dist/

@@ -1,0 +1,14 @@
+{
+    "name": "tsunagi",
+    "owner": {
+        "name": "TSUNAGI"
+    },
+    "description": "TSUNAGI///M tools for the BMW E46 M3, for Claude.",
+    "plugins": [
+        {
+            "name": "matrix-tsunagi",
+            "source": "./plugin",
+            "description": "The public calculations (MAPPING, MIGRATION) on your own files, and the TUNER WORKS connector for WORKS owners, with their Skills."
+        }
+    ]
+}

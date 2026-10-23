@@ -3,6 +3,7 @@
  * `matrix-tsunagi describe` prints it; the MCP server hands the same text over as its instructions.
  */
 import { ABOUT, APPS, MATRIX, MESH_URL } from './facts';
+import { HOW_TO_USE } from './guide';
 
 declare const __PKG_VERSION__: string;
 declare const __TUNER_VERSION__: string;
@@ -91,6 +92,9 @@ export function describe() {
         matrix: MATRIX,
         package: { name: 'matrix-tsunagi', version: __PKG_VERSION__ },
         about: ABOUT,
+        // The procedure an assistant follows with these tools (guide.ts). Newer than any matrix-public
+        // Skill the conversation carries, because it is published with the tools.
+        howToUse: HOW_TO_USE.join('\n'),
         categories: [
             {
                 name: 'MAPPING',

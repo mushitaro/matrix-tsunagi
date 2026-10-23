@@ -11,10 +11,13 @@ npx matrix-tsunagi mapping ve --sample
 
 `--sample` runs on the practice files shipped in the package. Replace it with `--bin <file.bin> --log <file.csv>` for your own.
 
-**TSUNAGI///Matrix** is TSUNAGI's family of tools for the E46 M3 (S54 engine, MSS54HP DME, SMG II):
-[m3.tsunagi.app](https://m3.tsunagi.app). This package carries the first category, **MAPPING**, whose tools are
-[MSS54HP CSL CONVERT /// TUNER](https://mss54hp-csl-convert-tuner.tsunagi.app/) and E46M3SMG2 /// MAPPING.
-The second category, **MIGRATION**, reads the backups of MSS54HP CSL CONVERT /// BOOT and E46 M35080 /// MIGRATION, and only reads them.
+**Installing it for an AI assistant (Claude, ChatGPT and others):** see [INSTALL.md](INSTALL.md). It is written so that you can hand this repository to the assistant and it installs what fits its client.
+
+**TSUNAGI///M** is TSUNAGI's family of tools for the E46 M3 (S54 engine, MSS54HP DME, SMG II).
+Owners meet the tools on [m3.tsunagi.app](https://m3.tsunagi.app); AI assistants meet them here.
+**TSUNAGI///Matrix** is the family's gate for AI assistants: it computes nothing of its own, and carries each tool's own code to the assistant, one category at a time.
+This package carries two categories. **MAPPING**: [MSS54HP CSL CONVERT /// TUNER](https://mss54hp-csl-convert-tuner.tsunagi.app/) and E46M3SMG2 /// MAPPING.
+**MIGRATION**: it reads the backups of MSS54HP CSL CONVERT /// BOOT and E46 M35080 /// MIGRATION, and only reads them.
 
 ## Ask it
 
@@ -102,6 +105,10 @@ npx matrix-tsunagi describe
 - With no files yet, add `--sample` to show the command working on the practice BIN and drive.
 - Nothing is sent anywhere. Files are read from the paths you give.
 
+## Claude plugin
+
+[`plugin/`](plugin/README.md) is the Claude plugin, one package for both parts. The public part runs the MAPPING and MIGRATION servers on this computer (Claude Code), with the `matrix-public` Skill. The WORKS part is the TUNER WORKS connector (`bridge/`, sign-in on m3) with the `tuner-drive` Skill, so an owner can talk to TUNER WORKS while it logs the car, from the phone too. It can stage a calibration change, save the session and sync it with the owner's cloud, each after the owner says yes; connecting to the car and writing to it stay with the owner, on the screen. The Skills are only the way in: the procedures come from the servers (`about_matrix`'s `howToUse`, `tuner_guide`), so they update with the tools without a new plugin, and the plugin runs the newest matrix-tsunagi on npm. How to install it is in [INSTALL.md](INSTALL.md).
+
 ## MCP
 
 There are two servers, one per category.
@@ -130,6 +137,19 @@ Claude Desktop (`claude_desktop_config.json`):
 ```
 
 On Windows, if `npx` is not found, use `"command": "cmd"` with `"args": ["/c", "npx", "-y", "matrix-tsunagi", "mcp", "mapping"]`.
+
+### Remote (ChatGPT)
+
+For assistants that cannot run npm, the MAPPING server also runs remotely:
+
+```
+https://matrix-mcp.tsunagi.app/mcp/mapping
+```
+
+In ChatGPT, turn on Developer mode (Settings → Security and login), then add it as a plugin by that URL. Attach your BIN and log in the chat and ask.
+Files reach the server as ChatGPT file parameters: it downloads them from the temporary link ChatGPT issues, computes in memory, returns the result, and keeps nothing.
+It returns values only, so make the tuned BIN with the free TUNER, and it is MAPPING only, because MIGRATION's dumps carry a VIN and a mileage and stay on your machine.
+How it handles files is set out in [section 11 of the privacy policy](https://m3.tsunagi.app/en/privacy-policy#matrix).
 
 ## Library
 
@@ -194,7 +214,8 @@ cd matrix-tsunagi && npm install && npm run verify
 
 ## 日本語
 
-TSUNAGI///Matrix（BMW E46 M3 のツール群）の計算を、ライブラリ・コマンド・MCP で使えるようにしたパッケージです。
+TSUNAGI///M（BMW E46 M3 のツール群）の計算を、ライブラリ・コマンド・MCP で使えるようにしたパッケージです。
+TSUNAGI///Matrix は、M のツールを AI アシスタントにつなぐ門です。自分では計算せず、各ツールのコードをカテゴリごとに束ねて渡します。
 MSS54HP の BIN と走行ログ（Testo の CSV）から、VE マップの補正案、ログのどこが使われなかったかとその直し方、rf_korr の表（試験中）を出します。
 SMG II の画像からは、ZB 番号とチェックサム、較正の解読（変速点など）、2 本の比較を出します。解読には、お手持ちの MS4X の XDF が要ります。
 MIGRATION は、DME のバックアップ（ブートローダの種類と CRC、CSL 化の残り）と、メーターの M35080 のバックアップ（走行距離、チェックサム、VIN の一致）を読むだけで、書き換えはしません。VIN と DME の識別情報は出力しません。

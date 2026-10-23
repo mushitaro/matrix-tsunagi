@@ -26,5 +26,5 @@
       "@tsunagi/ds2-core/*": ["./vendor/smg2/packages/ds2-core/src/*"]
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "remote/**/*.ts"]
 }

@@ -158,6 +158,31 @@ fs.writeFileSync(path.join(root, 'THIRD-PARTY-LICENSES.txt'),
     + `${'='.repeat(100)}\nE46M3SMG2 /// MAPPING ${smg2Pkg.version} (${smg2Commit}) — MIT\nhttps://github.com/mushitaro/e46m3smg2-mapping\n${'='.repeat(100)}\n\n${smg2Licence}\n\n`
     + licences.join('\n'));
 
+// --- the remote MAPPING server (remote/worker.ts), for Cloudflare Workers -----------------------
+// Same pinned code and the same stamps. No createRequire banner: a Worker has no node:module, and
+// nothing reached from here needs one. The practice files are inlined, as bytes and as text.
+// Only where remote/ is: the public main branch carries the package, not the hosting (2026-10-23).
+const hasRemote = fs.existsSync(path.join(root, 'remote', 'worker.ts'));
+if (hasRemote) fs.rmSync(path.join(root, 'remote', 'dist'), { recursive: true, force: true });
+if (hasRemote) await esbuild.build({
+    ...common,
+    banner: undefined,
+    metafile: false,
+    platform: 'neutral',
+    conditions: ['workerd', 'worker', 'browser'],
+    mainFields: ['browser', 'module', 'main'],
+    entryPoints: { worker: 'remote/worker.ts' },
+    outdir: 'remote/dist',
+    loader: { '.bin': 'binary', '.csv': 'text', '.png': 'binary', '.ico': 'binary' },
+    external: ['node:*'],
+});
+// The same bundle as a Pages advanced-mode worker: remote/pages/ is what `wrangler pages deploy` uploads.
+if (hasRemote) {
+    fs.rmSync(path.join(root, 'remote', 'pages'), { recursive: true, force: true });
+    fs.mkdirSync(path.join(root, 'remote', 'pages'), { recursive: true });
+    fs.copyFileSync(path.join(root, 'remote', 'dist', 'worker.js'), path.join(root, 'remote', 'pages', '_worker.js'));
+}
+
 fs.writeFileSync(path.join(root, 'dist', 'provenance.json'), JSON.stringify({
     package: pkg.version,
     tuner: { repository: 'https://github.com/mushitaro/mss54hp-csl-convert-tuner', version: tunerPkg.version, commit: tunerCommit },

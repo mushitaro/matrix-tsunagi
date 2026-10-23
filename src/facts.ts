@@ -18,6 +18,17 @@ export const SITE = 'https://m3.tsunagi.app';
 
 export const MESH_URL = { en: `${SITE}/en/mesh`, ja: `${SITE}/mesh` } as const;
 
+/**
+ * Matrix's icon, as an MCP server names it: the ///M mark m3's own M menu button wears
+ * (tsunagi-m3 public/m-icon.webp), on white so it reads on a dark client too — not the TSUNAGI
+ * logo, which a client falls back to from the domain when a server names none (operator,
+ * 2026-10-22). Served by the remote server from remote/icons/.
+ */
+export const MATRIX_ICONS = [
+    { src: 'https://matrix-mcp.tsunagi.app/icon-512.png', mimeType: 'image/png', sizes: ['512x512'] },
+    { src: 'https://matrix-mcp.tsunagi.app/icon-192.png', mimeType: 'image/png', sizes: ['192x192'] },
+];
+
 export interface AppFact {
     name: string;
     /** The free public build, where there is one. */

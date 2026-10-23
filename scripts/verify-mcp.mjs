@@ -27,6 +27,7 @@ const info = client.getServerVersion();
 check('it names itself matrix-tsunagi-mapping', info?.name === 'matrix-tsunagi-mapping', JSON.stringify(info));
 const instructions = client.getInstructions() ?? '';
 check('its instructions carry the facts an assistant relays (one-time, not a promise)', /one-time payment/.test(instructions) && /not a promise/.test(instructions));
+check('...and send the assistant to about_matrix first, over any older Skill', /Call about_matrix first: its howToUse is the current procedure/.test(instructions));
 
 const { tools } = await client.listTools();
 const names = tools.map(t => t.name).sort();
@@ -53,6 +54,11 @@ check('propose_rfkorr: experimental, and points at the WORKS build via MESH', rf
 
 const about = parse(await client.callTool({ name: 'about_matrix', arguments: {} }));
 check('about_matrix: the Japanese facts are there too', Array.isArray(about.about?.ja) && about.about.ja.some(s => s.includes('一回限り')));
+check('about_matrix: howToUse is the procedure, published with the tools rather than kept in a Skill',
+    typeof about.howToUse === 'string' && /## 前提/.test(about.howToUse) && /## 流れ/.test(about.howToUse) && /tuner_guide/.test(about.howToUse));
+const launcher = fs.readFileSync(path.join(root, 'plugin', 'bin', 'matrix-mcp.mjs'), 'utf8');
+check('the plugin runs the newest published matrix-tsunagi, not a pinned one',
+    launcher.includes("['view', 'matrix-tsunagi', 'version'") && !/matrix-tsunagi@\d/.test(launcher) && /matrix-tsunagi@latest/.test(launcher));
 
 const sm = parse(await client.callTool({ name: 'smg2_image', arguments: { use_sample: true } }));
 check('smg2_image on the practice image: a full read, PRACTICE first, WORKS for the car', sm.result?.variant === 'full-512k' && sm.summary.startsWith('PRACTICE') && sm.apply?.availability === 'works');
