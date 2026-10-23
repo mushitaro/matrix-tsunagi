@@ -23,6 +23,12 @@ export const MESH_URL = { en: `${SITE}/en/mesh`, ja: `${SITE}/mesh` } as const;
  * (tsunagi-m3 public/m-icon.webp), on white so it reads on a dark client too — not the TSUNAGI
  * logo, which a client falls back to from the domain when a server names none (operator,
  * 2026-10-22). Served by the remote server from remote/icons/.
+ *
+ * claude.ai does not read these: it draws a connector's icon from Google's favicon service for the
+ * REGISTRABLE domain of the connector's URL — `tsunagi.app` for matrix-mcp.tsunagi.app — so it shows
+ * the TSUNAGI logo whatever this host serves (measured 2026-10-23: /s2/favicons?domain=tsunagi.app).
+ * Only a domain of Matrix's own changes that; the operator moves there when Matrix gets one, and
+ * leaves tsunagi.app's own favicon alone.
  */
 export const MATRIX_ICONS = [
     { src: 'https://matrix-mcp.tsunagi.app/icon-512.png', mimeType: 'image/png', sizes: ['512x512'] },
