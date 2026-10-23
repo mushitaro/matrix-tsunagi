@@ -87,6 +87,16 @@ function zip(entries) {
 }
 
 const manifest = JSON.parse(fs.readFileSync(path.join(PLUGIN, '.claude-plugin', 'plugin.json'), 'utf8'));
+
+// claude.ai refuses a Skill whose description is over 1,024 characters — and says only "1 error",
+// without which one or why (0.4.0's tuner-drive was 1,730; `claude plugin validate` let it through).
+// Refused here, by name, before a ZIP exists to be uploaded.
+for (const skill of fs.readdirSync(path.join(PLUGIN, 'skills'), { withFileTypes: true }).filter(e => e.isDirectory())) {
+    const text = fs.readFileSync(path.join(PLUGIN, 'skills', skill.name, 'SKILL.md'), 'utf8');
+    const description = /^description: (.*)$/m.exec(text)?.[1] ?? '';
+    if (!description) throw new Error(`plugin/skills/${skill.name}/SKILL.md has no one-line description`);
+    if (description.length > 1024) throw new Error(`plugin/skills/${skill.name}: the description is ${description.length} characters; claude.ai accepts at most 1,024`);
+}
 fs.mkdirSync(OUT, { recursive: true });
 
 const all = walk(PLUGIN);
