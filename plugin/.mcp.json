@@ -3,12 +3,12 @@
         "matrix-mapping": {
             "type": "stdio",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/bin/matrix-mcp.mjs", "mapping"]
+            "args": ["${CLAUDE_PLUGIN_ROOT}/servers/matrix-mcp.mjs", "mapping"]
         },
         "matrix-migration": {
             "type": "stdio",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/bin/matrix-mcp.mjs", "migration"]
+            "args": ["${CLAUDE_PLUGIN_ROOT}/servers/matrix-mcp.mjs", "migration"]
         },
         "tuner-works": {
             "type": "http",

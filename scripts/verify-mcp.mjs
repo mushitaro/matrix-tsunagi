@@ -56,7 +56,7 @@ const about = parse(await client.callTool({ name: 'about_matrix', arguments: {} 
 check('about_matrix: the Japanese facts are there too', Array.isArray(about.about?.ja) && about.about.ja.some(s => s.includes('一回限り')));
 check('about_matrix: howToUse is the procedure, published with the tools rather than kept in a Skill',
     typeof about.howToUse === 'string' && /## 前提/.test(about.howToUse) && /## 流れ/.test(about.howToUse) && /tuner_guide/.test(about.howToUse));
-const launcher = fs.readFileSync(path.join(root, 'plugin', 'bin', 'matrix-mcp.mjs'), 'utf8');
+const launcher = fs.readFileSync(path.join(root, 'plugin', 'servers', 'matrix-mcp.mjs'), 'utf8');
 check('the plugin runs the newest published matrix-tsunagi, not a pinned one',
     launcher.includes("['view', 'matrix-tsunagi', 'version'") && !/matrix-tsunagi@\d/.test(launcher) && /matrix-tsunagi@latest/.test(launcher));
 

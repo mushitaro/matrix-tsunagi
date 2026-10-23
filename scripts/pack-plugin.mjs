@@ -97,6 +97,10 @@ for (const skill of fs.readdirSync(path.join(PLUGIN, 'skills'), { withFileTypes:
     if (!description) throw new Error(`plugin/skills/${skill.name}/SKILL.md has no one-line description`);
     if (description.length > 1024) throw new Error(`plugin/skills/${skill.name}: the description is ${description.length} characters; claude.ai accepts at most 1,024`);
 }
+// claude.ai refuses a plugin with a top-level bin/ ("may not ship bin/ executables": the CLI adds
+// bin/ to PATH and the admin approval surface does not show it). 0.4.0 and 0.4.1 had the local
+// servers' launcher there; executables go behind mcpServers, hooks or commands instead.
+if (fs.existsSync(path.join(PLUGIN, 'bin'))) throw new Error('plugin/bin/ exists; claude.ai refuses a plugin with a top-level bin/ — put the launcher elsewhere (plugin/servers/)');
 fs.mkdirSync(OUT, { recursive: true });
 
 const all = walk(PLUGIN);

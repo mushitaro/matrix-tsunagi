@@ -14,7 +14,7 @@ Nothing here can connect to the car, write to it or flash it. A person does that
 
 ## How the local servers start
 
-`.mcp.json` starts both local servers with `node bin/matrix-mcp.mjs <category>`, which asks npm for the newest matrix-tsunagi and runs `npx --prefix <tmp> -y matrix-tsunagi@<that version> mcp <category>`:
+`.mcp.json` starts both local servers with `node servers/matrix-mcp.mjs <category>`, which asks npm for the newest matrix-tsunagi and runs `npx --prefix <tmp> -y matrix-tsunagi@<that version> mcp <category>`:
 
 - **`node`, not `npx`, in `.mcp.json`:** one file serves every OS, and Claude Code on native Windows cannot start `npx` itself (it is `npx.cmd`).
 - **The newest published version, at every start (2026-10-23):** a release on npm reaches owners without a new plugin. What reaches them is still what the operator publishes. Offline, npm's cache answers with the newest version it holds (`--prefer-offline … @latest`).
@@ -31,7 +31,7 @@ Checked on Windows 11 on 2026-10-20: both servers start, list their tools and an
 
 ## Changing it
 
-1. A procedure changes in `bridge/src/guide.ts` or `src/guide.ts`, not here — it then reaches owners without this plugin. Edit the Skills, `.mcp.json` or `bin/matrix-mcp.mjs` only when the way in itself changes.
+1. A procedure changes in `bridge/src/guide.ts` or `src/guide.ts`, not here — it then reaches owners without this plugin. Edit the Skills, `.mcp.json` or `servers/matrix-mcp.mjs` only when the way in itself changes.
 2. Bump `version` in `.claude-plugin/plugin.json`.
 3. Check with `claude plugin validate ./plugin` and `claude plugin validate .` (the marketplace), and load it once with `claude --plugin-dir ./plugin mcp list`.
 4. Run `npm run plugin:pack` for a ZIP. Installing from GitHub needs the change on `main`.
