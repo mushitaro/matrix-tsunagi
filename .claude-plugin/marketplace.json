@@ -8,7 +8,7 @@
         {
             "name": "matrix-tsunagi",
             "source": "./plugin",
-            "description": "The public calculations (MAPPING, MIGRATION) on your own files, and the TUNER WORKS connector for WORKS owners, with their Skills."
+            "description": "The public calculations (MAPPING, MIGRATION) on your own files, and the TUNER WORKS and MONITORING WORKS connectors for WORKS owners, with their Skills."
         }
     ]
 }

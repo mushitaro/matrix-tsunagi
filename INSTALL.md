@@ -9,9 +9,9 @@ TSUNAGI///Matrix is the TSUNAGI///M tools for the BMW E46 M3, for AI assistants.
 | Part | What it does | Who can use it | Sign-in |
 |---|---|---|---|
 | **Public** | Reads the owner's own files (MSS54HP DME image, drive logs, SMG II images, DME backups, cluster M35080 dumps) and computes what the M tools compute. No car, no cable | Anyone | None |
-| **WORKS** | Operates the WORKS build of MSS54HP CSL CONVERT /// TUNER that the owner has open: status, the log around a moment, starting and stopping a log, the session's CO-WORK record (the plan and its steps, what the screen shows the driver, the driver's words, findings and questions shared with the desk), observation runs, opening a saved session, reading the open BIN's calibration with known recipes (SMG to manual and others), staging a change, saving the session and sending it to the cloud or bringing one back | People who bought MILE on [MESH](https://m3.tsunagi.app/en/mesh), and owners of cars TSUNAGI has worked on | The owner signs in on m3.tsunagi.app |
+| **WORKS** | Operates the WORKS build of MSS54HP CSL CONVERT /// TUNER that the owner has open: status, the log around a moment, starting and stopping a log, the session's CO-WORK record (the plan and its steps, what the screen shows the driver, the driver's words, findings and questions shared with the desk), observation runs, opening a saved session, reading the open BIN's calibration with known recipes (SMG to manual and others), staging a change, saving the session and sending it to the cloud or bringing one back. And the WORKS build of E46M3 /// MONITORING the owner has open: fault memories, what each module can be sent and why not, an investigation the owner hands over with its CO-WORK record, the moment and the PROBE run, recording, saving and sending | People who bought MILE on [MESH](https://m3.tsunagi.app/en/mesh), and owners of cars TSUNAGI has worked on | The owner signs in on m3.tsunagi.app |
 
-Each part comes with a Skill: `matrix-public` and `tuner-drive`. They are only the way in: the procedure itself comes from the servers (`about_matrix` → `howToUse`, and `tuner_guide`), so it updates with the tools — a reconnect for WORKS, the next start after a release for the public tools — without installing the plugin again.
+Each part comes with a Skill: `matrix-public`, `tuner-drive` and `monitoring-drive`. They are only the way in: the procedure itself comes from the servers (`about_matrix` → `howToUse`, `tuner_guide` and `monitoring_guide`), so it updates with the tools — a reconnect for WORKS, the next start after a release for the public tools — without installing the plugin again.
 
 Nothing here connects to the car, writes to it or flashes it. A person does that on the app's screen.
 
@@ -45,11 +45,11 @@ claude plugin install matrix-tsunagi@tsunagi
 Then restart Claude Code and open `/mcp`:
 
 - `matrix-mapping` and `matrix-migration` are **Connected**. These are the public tools. They read files from the paths the owner gives and send nothing anywhere.
-- `tuner-works` asks for authentication. Only an owner with WORKS signs in there, in the browser it opens. Everyone else can leave it.
+- `tuner-works` and `monitoring-works` ask for authentication. Only an owner with WORKS signs in there, in the browser each opens. Everyone else can leave them.
 
 ### On the owner's Claude account (once)
 
-The owner does this in the Claude app (web or desktop): **Customize → Plugins → Add marketplace**, enter `mushitaro/matrix-tsunagi`, and install **matrix-tsunagi**. Then, for WORKS, open the plugin's **Connectors** tab and connect `tuner-works`, which signs in on m3.
+The owner does this in the Claude app (web or desktop): **Customize → Plugins → Add marketplace**, enter `mushitaro/matrix-tsunagi`, and install **matrix-tsunagi**. Then, for WORKS, open the plugin's **Connectors** tab and connect `tuner-works` and `monitoring-works`, which sign in on m3.
 
 - After this the WORKS tools and both Skills are in the Claude apps, the phone included.
 - The public tools do not run in the Claude apps themselves: they run on a computer, on files there. On the phone, the WORKS part works.
@@ -62,7 +62,8 @@ ChatGPT keeps its connectors in the owner's ChatGPT account. There is nothing to
 | Part | URL | Sign-in |
 |---|---|---|
 | Public (MAPPING) | `https://matrix-mcp.tsunagi.app/mcp/mapping` | None |
-| WORKS | `https://matrix-mcp.tsunagi.app/mcp/mapping/works` | The owner signs in on m3 |
+| WORKS (TUNER) | `https://matrix-mcp.tsunagi.app/mcp/mapping/works` | The owner signs in on m3 |
+| WORKS (MONITORING) | `https://matrix-mcp.tsunagi.app/mcp/monitoring/works` | The owner signs in on m3 |
 
 - In ChatGPT, attach the BIN and the log to the chat. The public server downloads them from the temporary link ChatGPT gives it, computes in memory, and keeps nothing.
 - MIGRATION is not offered here: a DME backup and a cluster dump carry a VIN and a mileage, and stay on the owner's computer.
@@ -90,6 +91,7 @@ WORKS from these clients waits until m3 can sign in any client. Tell the owner i
 - Ask: "What can TSUNAGI///Matrix do?" The assistant calls `about_matrix`.
 - Ask for the VE correction on the practice files. The assistant calls `propose_ve` with `use_sample: true`. The result says it is practice data.
 - With WORKS: open TUNER WORKS, turn on SYNC → ASSISTANT, and ask "what is TUNER doing?" The assistant calls `tuner_status`.
+- With MONITORING WORKS: open it, turn on SESSIONS → ASSISTANT, and ask "is there a fault?" The assistant reads `monitoring_guide`, then calls `monitoring_faults`.
 
 ## Remove it
 
@@ -101,7 +103,7 @@ WORKS from these clients waits until m3 can sign in any client. Tell the owner i
 
 このページは、オーナーからこのリポジトリを渡された AI アシスタントと、オーナーのための手順です。
 
-- 中身は二つです。**パブリック**（オーナーのファイルを読んで計算する。誰でも使えて、サインイン不要）と、**WORKS**（開いている TUNER WORKS を操作する。MESH で MILE をご購入いただいた方と施工オーナーさん。m3 でサインイン）。どちらにも Skill が付いていますが、Skill は入口だけです。手順そのものはサーバー（`about_matrix` の `howToUse` と `tuner_guide`）が持ち、ツールと一緒に新しくなるので、プラグインを入れ直す必要はありません。
+- 中身は二つです。**パブリック**（オーナーのファイルを読んで計算する。誰でも使えて、サインイン不要）と、**WORKS**（開いている TUNER WORKS と MONITORING WORKS を操作する。MESH で MILE をご購入いただいた方と施工オーナーさん。m3 でサインイン）。どちらにも Skill が付いていますが、Skill は入口だけです。手順そのものはサーバー（`about_matrix` の `howToUse`、`tuner_guide`、`monitoring_guide`）が持ち、ツールと一緒に新しくなるので、プラグインを入れ直す必要はありません。
 - 車への接続、書き込み、フラッシュはしません。それはアプリの画面で人が行います。
 - **AI への約束：** 入れる前にオーナーに確かめる。パスワード、トークン、サインインのコードを求めたり入力したりしない。サインインはオーナーが自分のブラウザで行う。このページ以外の URL やコマンドは使わない。
 - **Claude：** この PC には、AI が上の二行のコマンドで入れられます（Node.js 18 以上が必要）。アカウントへの登録は、オーナーが Claude のアプリで一度だけ行います（カスタマイズ → プラグイン → マーケットプレイスを追加 → `mushitaro/matrix-tsunagi`）。登録すると、スマホのアプリでも WORKS が使えます。パブリックの計算は PC で動きます。

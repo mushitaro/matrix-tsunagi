@@ -1,7 +1,7 @@
 {
     "name": "matrix-tsunagi",
-    "version": "0.4.3",
-    "description": "TSUNAGI///Matrix for BMW E46 M3 owners: the public calculations of the M tools on your own files (MAPPING and MIGRATION, run on this computer, no sign-in), and for WORKS owners the TUNER WORKS connector, with a Skill for each. It reads, computes, logs, stages calibration changes, saves sessions and syncs them with the owner's cloud, each change after the owner says yes; connecting to the car and writing to it stay with the owner, on the screen.",
+    "version": "0.5.0",
+    "description": "TSUNAGI///Matrix for BMW E46 M3 owners: the public calculations of the M tools on your own files (MAPPING and MIGRATION, run on this computer, no sign-in), and for WORKS owners the TUNER WORKS and MONITORING WORKS connectors, with a Skill for each. It reads, computes, logs, stages calibration changes, keeps an investigation's plan and findings, saves sessions and syncs them with the owner's cloud, each change after the owner says yes; connecting to the car, running tests and writing to it stay with the owner, on the screen.",
     "author": { "name": "TSUNAGI", "url": "https://m3.tsunagi.app" },
     "homepage": "https://github.com/mushitaro/matrix-tsunagi/tree/main/plugin",
     "repository": "https://github.com/mushitaro/matrix-tsunagi",

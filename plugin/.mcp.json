@@ -13,6 +13,10 @@
         "tuner-works": {
             "type": "http",
             "url": "https://matrix-mcp.tsunagi.app/mcp/mapping/works"
+        },
+        "monitoring-works": {
+            "type": "http",
+            "url": "https://matrix-mcp.tsunagi.app/mcp/monitoring/works"
         }
     }
 }
